@@ -2,6 +2,8 @@
 
 XG-Windsurf 激活管理工具 - VS Code 扩展
 
+> 🤖 **声明**：本项目包含大量 AI 辅助生成的代码，主要用于学习和研究目的。代码质量和架构设计可能存在不足之处，欢迎各位大佬提出改进建议，请轻喷 🙏
+
 ## 功能特性
 
 - ✨ **账户激活管理** - 激活码验证和管理
@@ -161,19 +163,42 @@ export const API_CONFIG = {
 
 项目使用以下API端点（请确保你的服务器实现这些端点）：
 
-- `POST /api/account/validate-key` - 激活验证
-- `POST /api/account/activate-refresh` - 刷新激活
-- `POST /quota/api/key-usage` - 获取使用状态
-- `GET /api/announcements` - 获取公告
-- `POST /api/key/convert` - 密钥转换
+#### 激活相关
+- `POST /api/account/validate-key` - 激活码验证
+  ```json
+  请求: { "key_code": "xxx", "device_id": "xxx" }
+  响应: { "code": 200, "msg": "success", "data": {...} }
+  ```
 
-## 开发
+- `POST /api/account/activate-refresh` - 刷新激活状态
+  ```json
+  请求: { "key_code": "xxx", "device_id": "xxx" }
+  响应: { 
+    "code": 200, 
+    "data": {
+      "account": "{...}",  // JSON字符串，包含 apiKey, name, apiServerUrl 等
+      "metadata": "...",
+      "timestamp": "..."
+    }
+  }
+  ```
 
-### 监听模式
+#### 其他功能
+- `POST /quota/api/key-usage` - 获取配额使用状态
+- `GET /api/announcements` - 获取公告列表
+- `POST /api/key/convert` - Cursor密钥转换为Windsurf密钥
+
+## 开发指南
+
+### 监听模式（开发）
 
 ```bash
 npm run watch
 ```
+
+这会同时启动：
+- Extension 监听模式（后端）
+- Webview 开发服务器（前端）
 
 ### 构建生产版本
 
@@ -181,22 +206,115 @@ npm run watch
 npm run build
 ```
 
-### 代码混淆（可选）
+构建后的文件位于 `dist/` 目录。
+
+### 打包扩展
 
 ```bash
-npm run obfuscate
+npm run package
 ```
+
+生成 `.vsix` 文件，可在 VS Code / Windsurf 中手动安装。
+
+### 项目结构
+
+```
+xg-windsurf/
+├── src/
+│   ├── config/              # 配置文件
+│   │   └── api.ts          # API服务器配置
+│   ├── services/            # 核心服务
+│   │   ├── apiService.ts           # API请求封装
+│   │   ├── storageService.ts       # 本地存储
+│   │   ├── windsurfPatchService.ts # 补丁注入（核心）
+│   │   ├── windsurfAutoLoginService.ts # 自动登录
+│   │   └── windsurfPathService.ts  # 路径检测
+│   ├── types/               # TypeScript 类型定义
+│   ├── webview/             # 前端界面（React）
+│   │   ├── components/     # React 组件
+│   │   ├── provider.ts     # Webview Provider
+│   │   └── App.tsx         # 主应用
+│   └── extension.ts         # 扩展入口
+├── webpack/                 # Webpack 配置
+├── package.json            # 项目配置
+└── README.md               # 本文件
+```
+
+## 核心技术栈
+
+- **后端（Extension）**
+  - TypeScript
+  - VS Code Extension API
+  - Node.js fs/path 模块
+
+- **前端（Webview）**
+  - React 19
+  - TypeScript
+  - Webpack 5
+  - CSS 样式
+
+- **构建工具**
+  - Webpack
+  - ts-loader
+  - @vscode/vsce
 
 ## 许可证
 
 查看 [LICENSE](LICENSE) 文件了解详情。
 
-## 贡献
+## 贡献指南
 
 欢迎提交 Pull Request 和 Issue！
 
+**关于代码质量**：
+- 本项目大部分代码由 AI 辅助生成，可能存在不够优雅或不符合最佳实践的地方
+- 非常欢迎各位大佬指出问题并提供改进建议
+- 如果你有更好的实现方案，欢迎直接提交 PR
+
+在提交 PR 前，请确保：
+1. 代码通过 ESLint 检查 (`npm run lint`)
+2. 所有 TypeScript 类型正确
+3. 测试通过（如有）
+4. 提交信息清晰明了
+
+## 常见问题
+
+### Q: 补丁应用失败？
+**A**: 检查以下几点：
+- Windsurf 是否以管理员/root权限运行？
+- Windsurf 版本是否兼容？（补丁基于特定版本开发）
+- `extension.js` 文件是否被防病毒软件锁定？
+
+### Q: 切换账号后 Cascade 没反应？
+**A**: 
+- 确保补丁已成功应用（检查日志）
+- 尝试重启 Windsurf
+- 检查账号的 `apiKey` 和 `apiServerUrl` 是否正确
+
+### Q: 每次更新 Windsurf 都要重新打补丁？
+**A**: 是的。Windsurf 更新会覆盖 `extension.js` 文件，补丁需要重新应用。
+
+### Q: 支持哪些 Windsurf 版本？
+**A**: 理论上支持所有包含 `handleAuthToken` 函数的版本，但建议使用最新稳定版。
+
 ## 注意事项
 
+⚠️ **重要提示**：
 - 本项目需要配合后端API服务器使用
-- 请确保API服务器返回明文数据（不使用加密）
-- 首次使用前请正确配置 `src/config/api.ts`
+- **后端API应返回明文数据**（本开源版本已移除加密功能）
+- 首次使用前必须在 `src/config/api.ts` 中配置API服务器地址
+- 补丁会修改 Windsurf 的系统文件，请确保有备份
+- 仅供学习交流使用，请勿用于非法用途
+
+## 联系方式
+
+💬 **项目交流 QQ**: `2395097929`
+
+欢迎添加 QQ 交流项目使用问题、提出建议或分享你的使用经验！
+
+## 致谢
+
+- 🤖 感谢 AI 编程助手（Cascade/Cursor/Claude 等）在开发过程中提供的巨大帮助
+- 💻 感谢 Windsurf 团队开发了如此优秀的 AI 编程工具
+- 🌟 感谢所有为开源社区做出贡献的开发者！
+- 🙏 感谢每一位使用本项目并提出宝贵意见的朋友
