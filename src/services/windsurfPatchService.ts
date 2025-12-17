@@ -21,11 +21,23 @@ export class WindsurfPatchService {
     private static readonly PATCH_KEYWORD_1 = "windsurf.provideAuthTokenToAuthProviderWithShit";
     private static readonly PATCH_KEYWORD_2 = "handleAuthTokenWithShit";
 
-    // 原始的 handleAuthToken 函数
-    private static readonly ORIGINAL_HANDLE_AUTH_TOKEN = 'async handleAuthToken(A){const e=await(0,Q.registerUser)(A),{apiKey:t,name:i}=e,o=(0,B.getApiServerUrl)(e.apiServerUrl);if(!t)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty api_key");if(!i)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty name");const r={id:(0,g.v4)(),accessToken:t,account:{label:i,id:i},scopes:[]};return await this.context.secrets.store(u.sessionsSecretKey,JSON.stringify([r])),await this.context.globalState.update("apiServerUrl",o),(0,n.isString)(o)&&!(0,n.isEmpty)(o)&&o!==I.LanguageServerClient.getInstance().apiServerUrl&&await I.LanguageServerClient.getInstance().restart(o),this._sessionChangeEmitter.fire({added:[r],removed:[],changed:[]}),r}';
+    // 原始的 handleAuthToken 函数 - 支持多个版本
+    private static readonly ORIGINAL_HANDLE_AUTH_TOKEN_PATTERNS = [
+        // 新版本 (2024.12+)
+        'async handleAuthToken(A){const e=await(0,E.registerUser)(A),{apiKey:t,name:g}=e,i=(0,B.getApiServerUrl)(e.apiServerUrl);if(!t)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty api_key");if(!g)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty name");const I={id:(0,n.v4)(),accessToken:t,account:{label:g,id:g},scopes:[]};return await this.context.secrets.store(u.sessionsSecretKey,JSON.stringify([I])),await this.context.globalState.update("apiServerUrl",i),(0,o.isString)(i)&&!(0,o.isEmpty)(i)&&i!==r.LanguageServerClient.getInstance().apiServerUrl&&await r.LanguageServerClient.getInstance().restart(i),this._sessionChangeEmitter.fire({added:[I],removed:[],changed:[]}),I}',
+        // 旧版本
+        'async handleAuthToken(A){const e=await(0,Q.registerUser)(A),{apiKey:t,name:i}=e,o=(0,B.getApiServerUrl)(e.apiServerUrl);if(!t)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty api_key");if(!i)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty name");const r={id:(0,g.v4)(),accessToken:t,account:{label:i,id:i},scopes:[]};return await this.context.secrets.store(u.sessionsSecretKey,JSON.stringify([r])),await this.context.globalState.update("apiServerUrl",o),(0,n.isString)(o)&&!(0,n.isEmpty)(o)&&o!==I.LanguageServerClient.getInstance().apiServerUrl&&await I.LanguageServerClient.getInstance().restart(o),this._sessionChangeEmitter.fire({added:[r],removed:[],changed:[]}),r}'
+    ];
 
-    // 新的 handleAuthTokenWithShit 函数
-    private static readonly NEW_HANDLE_AUTH_TOKEN_WITH_SHIT = 'async handleAuthTokenWithShit(A){const{apiKey:t,name:i}=A,o=(0,B.getApiServerUrl)(A.apiServerUrl);if(!t)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty api_key");if(!i)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty name");const r={id:(0,g.v4)(),accessToken:t,account:{label:i,id:i},scopes:[]};return await this.context.secrets.store(u.sessionsSecretKey,JSON.stringify([r])),await this.context.globalState.update("apiServerUrl",o),(0,n.isString)(o)&&!(0,n.isEmpty)(o)&&o!==I.LanguageServerClient.getInstance().apiServerUrl&&await I.LanguageServerClient.getInstance().restart(o),this._sessionChangeEmitter.fire({added:[r],removed:[],changed:[]}),r}';
+    // 新的 handleAuthTokenWithShit 函数 - 对应不同版本
+    private static readonly NEW_HANDLE_AUTH_TOKEN_WITH_SHIT_MAP: { [key: string]: string } = {
+        // 新版本对应的补丁
+        'async handleAuthToken(A){const e=await(0,E.registerUser)(A),{apiKey:t,name:g}=e,i=(0,B.getApiServerUrl)(e.apiServerUrl);if(!t)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty api_key");if(!g)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty name");const I={id:(0,n.v4)(),accessToken:t,account:{label:g,id:g},scopes:[]};return await this.context.secrets.store(u.sessionsSecretKey,JSON.stringify([I])),await this.context.globalState.update("apiServerUrl",i),(0,o.isString)(i)&&!(0,o.isEmpty)(i)&&i!==r.LanguageServerClient.getInstance().apiServerUrl&&await r.LanguageServerClient.getInstance().restart(i),this._sessionChangeEmitter.fire({added:[I],removed:[],changed:[]}),I}': 
+        'async handleAuthTokenWithShit(A){const{apiKey:t,name:g}=A,i=(0,B.getApiServerUrl)(A.apiServerUrl);if(!t)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty api_key");if(!g)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty name");const I={id:(0,n.v4)(),accessToken:t,account:{label:g,id:g},scopes:[]};return await this.context.secrets.store(u.sessionsSecretKey,JSON.stringify([I])),await this.context.globalState.update("apiServerUrl",i),(0,o.isString)(i)&&!(0,o.isEmpty)(i)&&i!==r.LanguageServerClient.getInstance().apiServerUrl&&await r.LanguageServerClient.getInstance().restart(i),this._sessionChangeEmitter.fire({added:[I],removed:[],changed:[]}),I}',
+        // 旧版本对应的补丁
+        'async handleAuthToken(A){const e=await(0,Q.registerUser)(A),{apiKey:t,name:i}=e,o=(0,B.getApiServerUrl)(e.apiServerUrl);if(!t)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty api_key");if(!i)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty name");const r={id:(0,g.v4)(),accessToken:t,account:{label:i,id:i},scopes:[]};return await this.context.secrets.store(u.sessionsSecretKey,JSON.stringify([r])),await this.context.globalState.update("apiServerUrl",o),(0,n.isString)(o)&&!(0,n.isEmpty)(o)&&o!==I.LanguageServerClient.getInstance().apiServerUrl&&await I.LanguageServerClient.getInstance().restart(o),this._sessionChangeEmitter.fire({added:[r],removed:[],changed:[]}),r}':
+        'async handleAuthTokenWithShit(A){const{apiKey:t,name:i}=A,o=(0,B.getApiServerUrl)(A.apiServerUrl);if(!t)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty api_key");if(!i)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty name");const r={id:(0,g.v4)(),accessToken:t,account:{label:i,id:i},scopes:[]};return await this.context.secrets.store(u.sessionsSecretKey,JSON.stringify([r])),await this.context.globalState.update("apiServerUrl",o),(0,n.isString)(o)&&!(0,n.isEmpty)(o)&&o!==I.LanguageServerClient.getInstance().apiServerUrl&&await I.LanguageServerClient.getInstance().restart(o),this._sessionChangeEmitter.fire({added:[r],removed:[],changed:[]}),r}'
+    };
 
     // 原始的命令注册
     private static readonly ORIGINAL_COMMAND_REGISTRATION = "A.subscriptions.push(s.commands.registerCommand(t.PROVIDE_AUTH_TOKEN_TO_AUTH_PROVIDER,async A=>{try{return{session:await e.handleAuthToken(A),error:void 0}}catch(A){return A instanceof a.WindsurfError?{error:A.errorMetadata}:{error:C.WindsurfExtensionMetadata.getInstance().errorCodes.GENERIC_ERROR}}}),s.commands.registerCommand(t.LOGIN_WITH_REDIRECT,async(A,e)=>await(0,m.getAuthSession)({promptLoginIfNone:!0,shouldRegisterNewUser:A,fromOnboarding:e})),s.commands.registerCommand(t.LOGIN_WITH_AUTH_TOKEN,()=>{e.provideAuthToken()}),s.commands.registerCommand(t.CANCEL_LOGIN,()=>{w.WindsurfAuthProvider.getInstance().forceCancellation()}),s.commands.registerCommand(t.LOGOUT,async()=>{const A=w.WindsurfAuthProvider.getInstance(),e=await A.getSessions();e.length>0&&await A.removeSession(e[0].id)})),";
@@ -154,20 +166,40 @@ export class WindsurfPatchService {
 
             // 1. 添加新的 handleAuthTokenWithShit 函数
             console.log('[WindsurfPatchService] 查找 handleAuthToken 函数...');
-            const handleAuthTokenIndex = fileContent.indexOf(this.ORIGINAL_HANDLE_AUTH_TOKEN);
-            if (handleAuthTokenIndex === -1) {
+            
+            let matchedPattern: string | null = null;
+            let handleAuthTokenIndex = -1;
+            
+            for (const pattern of this.ORIGINAL_HANDLE_AUTH_TOKEN_PATTERNS) {
+                handleAuthTokenIndex = fileContent.indexOf(pattern);
+                if (handleAuthTokenIndex !== -1) {
+                    matchedPattern = pattern;
+                    console.log(`[WindsurfPatchService] 匹配到版本模式，位置: ${handleAuthTokenIndex}`);
+                    break;
+                }
+            }
+            
+            if (handleAuthTokenIndex === -1 || !matchedPattern) {
                 console.error('[WindsurfPatchService] 未找到 handleAuthToken 函数');
                 return {
                     success: false,
-                    error: "Could not find handleAuthToken function. Windsurf version may be incompatible.\n\nThe expected function signature was not found in extension.js."
+                    error: "Could not find handleAuthToken function. Windsurf version may be incompatible.\n\nThe expected function signature was not found in extension.js.\n\nPlease report this issue with your Windsurf version."
                 };
             }
-            console.log(`[WindsurfPatchService] 找到 handleAuthToken 函数，位置: ${handleAuthTokenIndex}`);
+            
+            const newFunction = this.NEW_HANDLE_AUTH_TOKEN_WITH_SHIT_MAP[matchedPattern];
+            if (!newFunction) {
+                console.error('[WindsurfPatchService] 未找到对应的补丁函数');
+                return {
+                    success: false,
+                    error: "Internal error: No matching patch function found."
+                };
+            }
 
-            const insertPosition1 = handleAuthTokenIndex + this.ORIGINAL_HANDLE_AUTH_TOKEN.length;
+            const insertPosition1 = handleAuthTokenIndex + matchedPattern.length;
             console.log('[WindsurfPatchService] 插入新的 handleAuthTokenWithShit 函数...');
             fileContent = fileContent.substring(0, insertPosition1) + 
-                         this.NEW_HANDLE_AUTH_TOKEN_WITH_SHIT + 
+                         newFunction + 
                          fileContent.substring(insertPosition1);
             console.log(`[WindsurfPatchService] 插入函数后文件大小: ${fileContent.length} 字符`);
 

@@ -199,35 +199,56 @@ export class AccountManager {
 
     /**
      * 导入账号（从 JSON）
+     * 支持两种格式：
+     * 1. 直接的账号数组 [{ email, apiKey, ... }]
+     * 2. 导出格式 { accounts: [{ email, apiKey, ... }], exportTime, ... }
      */
-    async importAccounts(jsonData: string): Promise<number> {
+    async importAccounts(jsonData: string): Promise<{ imported: number; skipped: number; total: number }> {
         let importedAccounts: any[];
 
         try {
-            importedAccounts = JSON.parse(jsonData);
-            if (!Array.isArray(importedAccounts)) {
-                importedAccounts = [importedAccounts];
+            const parsed = JSON.parse(jsonData);
+            // 支持导出格式：{ accounts: [...] }
+            if (parsed.accounts && Array.isArray(parsed.accounts)) {
+                importedAccounts = parsed.accounts;
+            } else if (Array.isArray(parsed)) {
+                importedAccounts = parsed;
+            } else {
+                importedAccounts = [parsed];
             }
         } catch {
             throw new Error('无效的 JSON 格式');
         }
 
-        let count = 0;
+        // 获取现有账号的邮箱列表，用于去重
+        const existingAccounts = await this.getAccounts();
+        const existingEmails = new Set(existingAccounts.map(acc => acc.email.toLowerCase()));
+
+        let imported = 0;
+        let skipped = 0;
+
         for (const acc of importedAccounts) {
             if (acc.email && (acc.apiKey || acc.refreshToken)) {
+                // 检查是否已存在
+                if (existingEmails.has(acc.email.toLowerCase())) {
+                    skipped++;
+                    continue;
+                }
+
                 await this.addAccount({
                     email: acc.email,
-                    name: acc.name || acc.email.split('@')[0],
+                    name: acc.name || `${acc.firstName || ''} ${acc.lastName || ''}`.trim() || acc.email.split('@')[0],
                     apiKey: acc.apiKey || '',
                     apiServerUrl: acc.apiServerUrl || 'https://server.self-serve.windsurf.com',
                     refreshToken: acc.refreshToken || '',
-                    planName: acc.planName || 'Pro'
+                    planName: acc.type || acc.planName || 'Free'
                 });
-                count++;
+                imported++;
+                existingEmails.add(acc.email.toLowerCase());
             }
         }
 
-        return count;
+        return { imported, skipped, total: importedAccounts.length };
     }
 
     /**

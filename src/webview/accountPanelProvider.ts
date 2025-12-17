@@ -70,6 +70,10 @@ export class AccountPanelProvider implements vscode.WebviewViewProvider {
                 case 'copyApiKey':
                     await this._copyApiKey(data.accountId);
                     break;
+
+                case 'importAccounts':
+                    await this._importAccounts();
+                    break;
             }
         });
 
@@ -92,7 +96,7 @@ export class AccountPanelProvider implements vscode.WebviewViewProvider {
      * 发送账号列表到 WebView
      */
     private async _sendAccountList() {
-        if (!this._view) return;
+        if (!this._view) {return;}
 
         const accounts = await this._accountManager.getAccounts();
         this._view.webview.postMessage({
@@ -110,7 +114,7 @@ export class AccountPanelProvider implements vscode.WebviewViewProvider {
      * 发送当前账号到 WebView
      */
     private async _sendCurrentAccount() {
-        if (!this._view) return;
+        if (!this._view) {return;}
 
         const current = await this._accountSwitcher.getCurrentAccount();
         this._view.webview.postMessage({
@@ -133,7 +137,9 @@ export class AccountPanelProvider implements vscode.WebviewViewProvider {
         const result = await this._accountSwitcher.switchAccount(account);
 
         if (result.success) {
-            this._sendMessage('success', '切换成功，窗口即将重载...');
+            this._sendMessage('success', '切换成功');
+            // 刷新当前账号显示
+            await this._sendCurrentAccount();
         } else {
             this._sendMessage('error', `切换失败: ${result.error}`);
         }
@@ -195,6 +201,45 @@ export class AccountPanelProvider implements vscode.WebviewViewProvider {
 
         await vscode.env.clipboard.writeText(account.apiKey);
         this._sendMessage('success', 'API Key 已复制');
+    }
+
+    /**
+     * 导入账号
+     */
+    private async _importAccounts() {
+        const options: vscode.OpenDialogOptions = {
+            canSelectMany: false,
+            openLabel: '选择导入文件',
+            filters: {
+                'JSON 文件': ['json'],
+                '所有文件': ['*']
+            }
+        };
+
+        const fileUri = await vscode.window.showOpenDialog(options);
+        if (!fileUri || fileUri.length === 0) {
+            return;
+        }
+
+        try {
+            this._sendMessage('info', '正在导入账号...');
+            const fileContent = await vscode.workspace.fs.readFile(fileUri[0]);
+            const jsonData = new TextDecoder('utf-8').decode(fileContent);
+            
+            const result = await this._accountManager.importAccounts(jsonData);
+            
+            if (result.imported > 0) {
+                this._sendMessage('success', `导入成功: ${result.imported} 个账号${result.skipped > 0 ? `, 跳过 ${result.skipped} 个重复账号` : ''}`);
+            } else if (result.skipped > 0) {
+                this._sendMessage('info', `所有 ${result.skipped} 个账号已存在，无需导入`);
+            } else {
+                this._sendMessage('error', '未找到有效账号数据');
+            }
+            
+            await this._sendAccountList();
+        } catch (error: any) {
+            this._sendMessage('error', `导入失败: ${error.message}`);
+        }
     }
 
     /**
@@ -421,6 +466,15 @@ export class AccountPanelProvider implements vscode.WebviewViewProvider {
       flex: 1;
     }
     
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .btn-group .btn {
+      flex: 1;
+    }
+    
     .message {
       padding: 8px 10px;
       border-radius: 4px;
@@ -481,9 +535,14 @@ export class AccountPanelProvider implements vscode.WebviewViewProvider {
         <button class="btn btn-secondary" onclick="cancelAdd()">取消</button>
       </div>
     </div>
-    <button id="addBtn" class="btn btn-primary" onclick="showAddForm()">
-      <span>+</span> 添加账号
-    </button>
+    <div class="btn-group">
+      <button id="addBtn" class="btn btn-primary" onclick="showAddForm()">
+        <span>+</span> 添加账号
+      </button>
+      <button class="btn btn-secondary" onclick="importAccounts()">
+        <span>⬇</span> 导入
+      </button>
+    </div>
   </div>
   
   <div class="section">
@@ -621,6 +680,10 @@ export class AccountPanelProvider implements vscode.WebviewViewProvider {
           el.classList.remove('show');
         }, 3000);
       }
+    }
+    
+    function importAccounts() {
+      vscode.postMessage({ type: 'importAccounts' });
     }
     
     // 回车提交

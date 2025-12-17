@@ -4,9 +4,7 @@
  */
 
 import * as vscode from 'vscode';
-import { v4 as uuidv4 } from 'uuid';
 import { Account } from './accountManager';
-import { DatabaseHelper } from './databaseHelper';
 import { MachineIdResetter } from './machineIdReset';
 import { WindsurfPatchService } from './windsurfPatchService';
 
@@ -30,6 +28,7 @@ interface AuthStatus {
  * 3. 会话直接写入 VSCode Secrets，无需服务器验证
  */
 export class AccountSwitcher {
+    private static readonly CURRENT_ACCOUNT_KEY = 'windsurfSwitch.currentAccount';
     private outputChannel: vscode.OutputChannel;
     private context?: vscode.ExtensionContext;
 
@@ -126,8 +125,15 @@ export class AccountSwitcher {
 
                 this.log('会话注入成功！');
 
-                // 同时更新数据库（备用）
-                await this.writeAuthData(account);
+                // 记录当前账号到存储
+                const currentAuthStatus: AuthStatus = {
+                    name: account.name,
+                    apiKey: account.apiKey,
+                    email: account.email,
+                    teamId: '',
+                    planName: account.planName || 'Pro'
+                };
+                await this.context?.globalState.update(AccountSwitcher.CURRENT_ACCOUNT_KEY, currentAuthStatus);
 
                 this.log('========== 切换完成 ==========');
                 this.log(`账号: ${account.email}`);
@@ -139,9 +145,9 @@ export class AccountSwitcher {
             } catch (error) {
                 this.log(`会话注入失败: ${(error as Error).message}`);
 
-                // 尝试备用方案：直接写数据库并重载
-                this.log('尝试备用方案：写入数据库并重载窗口...');
-                await this.writeAuthData(account);
+                // 备用方案：直接重载窗口
+                this.log('尝试备用方案：重载窗口...');
+                vscode.window.showInformationMessage(`正在切换账号: ${account.email}，窗口即将重载...`);
 
                 setTimeout(() => {
                     vscode.commands.executeCommand('workbench.action.reloadWindow');
@@ -158,45 +164,10 @@ export class AccountSwitcher {
     }
 
     /**
-     * 写入认证数据到数据库（备用方案）
-     */
-    private async writeAuthData(account: Account): Promise<void> {
-        const teamId = uuidv4();
-
-        const authStatus: AuthStatus = {
-            name: account.name,
-            apiKey: account.apiKey,
-            email: account.email,
-            teamId: teamId,
-            planName: account.planName || 'Pro'
-        };
-        await DatabaseHelper.writeToDB('windsurfAuthStatus', authStatus);
-        this.log('已写入 windsurfAuthStatus');
-
-        const installationId = uuidv4();
-        const codeiumConfig = {
-            'codeium.installationId': installationId,
-            'codeium.apiKey': account.apiKey,
-            'apiServerUrl': account.apiServerUrl || 'https://server.self-serve.windsurf.com',
-            'codeium.hasOneTimeUpdatedUnspecifiedMode': true
-        };
-        await DatabaseHelper.writeToDB('codeium.windsurf', codeiumConfig);
-        this.log('已写入 codeium.windsurf');
-
-        await DatabaseHelper.writeToDB('codeium.windsurf-windsurf_auth', account.name);
-        this.log('已写入用户名');
-    }
-
-    /**
      * 获取当前登录的账号
      */
     async getCurrentAccount(): Promise<AuthStatus | null> {
-        try {
-            const authStatus = await DatabaseHelper.readFromDB('windsurfAuthStatus');
-            return authStatus as AuthStatus;
-        } catch {
-            return null;
-        }
+        return this.context?.globalState.get<AuthStatus>(AccountSwitcher.CURRENT_ACCOUNT_KEY) || null;
     }
 
     /**

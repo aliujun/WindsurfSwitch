@@ -65,7 +65,6 @@
     "clean": "rimraf dist out *.tsbuildinfo"
   },
   "dependencies": {
-    "sql.js": "^1.13.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
