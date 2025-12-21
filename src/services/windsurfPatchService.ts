@@ -32,15 +32,20 @@ export class WindsurfPatchService {
     // 新的 handleAuthTokenWithShit 函数 - 对应不同版本
     private static readonly NEW_HANDLE_AUTH_TOKEN_WITH_SHIT_MAP: { [key: string]: string } = {
         // 新版本对应的补丁
-        'async handleAuthToken(A){const e=await(0,E.registerUser)(A),{apiKey:t,name:g}=e,i=(0,B.getApiServerUrl)(e.apiServerUrl);if(!t)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty api_key");if(!g)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty name");const I={id:(0,n.v4)(),accessToken:t,account:{label:g,id:g},scopes:[]};return await this.context.secrets.store(u.sessionsSecretKey,JSON.stringify([I])),await this.context.globalState.update("apiServerUrl",i),(0,o.isString)(i)&&!(0,o.isEmpty)(i)&&i!==r.LanguageServerClient.getInstance().apiServerUrl&&await r.LanguageServerClient.getInstance().restart(i),this._sessionChangeEmitter.fire({added:[I],removed:[],changed:[]}),I}': 
-        'async handleAuthTokenWithShit(A){const{apiKey:t,name:g}=A,i=(0,B.getApiServerUrl)(A.apiServerUrl);if(!t)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty api_key");if(!g)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty name");const I={id:(0,n.v4)(),accessToken:t,account:{label:g,id:g},scopes:[]};return await this.context.secrets.store(u.sessionsSecretKey,JSON.stringify([I])),await this.context.globalState.update("apiServerUrl",i),(0,o.isString)(i)&&!(0,o.isEmpty)(i)&&i!==r.LanguageServerClient.getInstance().apiServerUrl&&await r.LanguageServerClient.getInstance().restart(i),this._sessionChangeEmitter.fire({added:[I],removed:[],changed:[]}),I}',
+        'async handleAuthToken(A){const e=await(0,E.registerUser)(A),{apiKey:t,name:g}=e,i=(0,B.getApiServerUrl)(e.apiServerUrl);if(!t)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty api_key");if(!g)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty name");const I={id:(0,n.v4)(),accessToken:t,account:{label:g,id:g},scopes:[]};return await this.context.secrets.store(u.sessionsSecretKey,JSON.stringify([I])),await this.context.globalState.update("apiServerUrl",i),(0,o.isString)(i)&&!(0,o.isEmpty)(i)&&i!==r.LanguageServerClient.getInstance().apiServerUrl&&await r.LanguageServerClient.getInstance().restart(i),this._sessionChangeEmitter.fire({added:[I],removed:[],changed:[]}),I}':
+            'async handleAuthTokenWithShit(A){const{apiKey:t,name:g}=A,i=(0,B.getApiServerUrl)(A.apiServerUrl);if(!t)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty api_key");if(!g)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty name");const I={id:(0,n.v4)(),accessToken:t,account:{label:g,id:g},scopes:[]};return await this.context.secrets.store(u.sessionsSecretKey,JSON.stringify([I])),await this.context.globalState.update("apiServerUrl",i),(0,o.isString)(i)&&!(0,o.isEmpty)(i)&&i!==r.LanguageServerClient.getInstance().apiServerUrl&&await r.LanguageServerClient.getInstance().restart(i),this._sessionChangeEmitter.fire({added:[I],removed:[],changed:[]}),I}',
         // 旧版本对应的补丁
         'async handleAuthToken(A){const e=await(0,Q.registerUser)(A),{apiKey:t,name:i}=e,o=(0,B.getApiServerUrl)(e.apiServerUrl);if(!t)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty api_key");if(!i)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty name");const r={id:(0,g.v4)(),accessToken:t,account:{label:i,id:i},scopes:[]};return await this.context.secrets.store(u.sessionsSecretKey,JSON.stringify([r])),await this.context.globalState.update("apiServerUrl",o),(0,n.isString)(o)&&!(0,n.isEmpty)(o)&&o!==I.LanguageServerClient.getInstance().apiServerUrl&&await I.LanguageServerClient.getInstance().restart(o),this._sessionChangeEmitter.fire({added:[r],removed:[],changed:[]}),r}':
-        'async handleAuthTokenWithShit(A){const{apiKey:t,name:i}=A,o=(0,B.getApiServerUrl)(A.apiServerUrl);if(!t)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty api_key");if(!i)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty name");const r={id:(0,g.v4)(),accessToken:t,account:{label:i,id:i},scopes:[]};return await this.context.secrets.store(u.sessionsSecretKey,JSON.stringify([r])),await this.context.globalState.update("apiServerUrl",o),(0,n.isString)(o)&&!(0,n.isEmpty)(o)&&o!==I.LanguageServerClient.getInstance().apiServerUrl&&await I.LanguageServerClient.getInstance().restart(o),this._sessionChangeEmitter.fire({added:[r],removed:[],changed:[]}),r}'
+            'async handleAuthTokenWithShit(A){const{apiKey:t,name:i}=A,o=(0,B.getApiServerUrl)(A.apiServerUrl);if(!t)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty api_key");if(!i)throw new s.AuthMalformedLanguageServerResponseError("Auth login failure: empty name");const r={id:(0,g.v4)(),accessToken:t,account:{label:i,id:i},scopes:[]};return await this.context.secrets.store(u.sessionsSecretKey,JSON.stringify([r])),await this.context.globalState.update("apiServerUrl",o),(0,n.isString)(o)&&!(0,n.isEmpty)(o)&&o!==I.LanguageServerClient.getInstance().apiServerUrl&&await I.LanguageServerClient.getInstance().restart(o),this._sessionChangeEmitter.fire({added:[r],removed:[],changed:[]}),r}'
     };
 
-    // 原始的命令注册
-    private static readonly ORIGINAL_COMMAND_REGISTRATION = "A.subscriptions.push(s.commands.registerCommand(t.PROVIDE_AUTH_TOKEN_TO_AUTH_PROVIDER,async A=>{try{return{session:await e.handleAuthToken(A),error:void 0}}catch(A){return A instanceof a.WindsurfError?{error:A.errorMetadata}:{error:C.WindsurfExtensionMetadata.getInstance().errorCodes.GENERIC_ERROR}}}),s.commands.registerCommand(t.LOGIN_WITH_REDIRECT,async(A,e)=>await(0,m.getAuthSession)({promptLoginIfNone:!0,shouldRegisterNewUser:A,fromOnboarding:e})),s.commands.registerCommand(t.LOGIN_WITH_AUTH_TOKEN,()=>{e.provideAuthToken()}),s.commands.registerCommand(t.CANCEL_LOGIN,()=>{w.WindsurfAuthProvider.getInstance().forceCancellation()}),s.commands.registerCommand(t.LOGOUT,async()=>{const A=w.WindsurfAuthProvider.getInstance(),e=await A.getSessions();e.length>0&&await A.removeSession(e[0].id)})),";
+    // 原始的命令注册 - 支持多个版本
+    private static readonly ORIGINAL_COMMAND_REGISTRATION_PATTERNS = [
+        // 新版本 (2024.12.21+) - 使用 ()=>G() 代替 forceCancellation
+        "A.subscriptions.push(s.commands.registerCommand(t.PROVIDE_AUTH_TOKEN_TO_AUTH_PROVIDER,async A=>{try{return{session:await e.handleAuthToken(A),error:void 0}}catch(A){return A instanceof a.WindsurfError?{error:A.errorMetadata}:{error:C.WindsurfExtensionMetadata.getInstance().errorCodes.GENERIC_ERROR}}}),s.commands.registerCommand(t.LOGIN_WITH_REDIRECT,async(A,e)=>{(N||S)&&await G(),N=void 0;const t=(0,m.getAuthSession)({promptLoginIfNone:!0,shouldRegisterNewUser:A,fromOnboarding:e}).catch(A=>{if(!k(A))throw(0,u.sentryCaptureException)(A),console.error(\"Error during login with redirect:\",A),A});N=t;try{return await t}finally{N===t&&(N=void 0)}}),s.commands.registerCommand(t.LOGIN_WITH_AUTH_TOKEN,()=>{e.provideAuthToken()}),s.commands.registerCommand(t.CANCEL_LOGIN,()=>G()),s.commands.registerCommand(t.LOGOUT,async()=>{const A=w.WindsurfAuthProvider.getInstance(),e=await A.getSessions();e.length>0&&await A.removeSession(e[0].id)})),",
+        // 旧版本 - 使用 forceCancellation
+        "A.subscriptions.push(s.commands.registerCommand(t.PROVIDE_AUTH_TOKEN_TO_AUTH_PROVIDER,async A=>{try{return{session:await e.handleAuthToken(A),error:void 0}}catch(A){return A instanceof a.WindsurfError?{error:A.errorMetadata}:{error:C.WindsurfExtensionMetadata.getInstance().errorCodes.GENERIC_ERROR}}}),s.commands.registerCommand(t.LOGIN_WITH_REDIRECT,async(A,e)=>await(0,m.getAuthSession)({promptLoginIfNone:!0,shouldRegisterNewUser:A,fromOnboarding:e})),s.commands.registerCommand(t.LOGIN_WITH_AUTH_TOKEN,()=>{e.provideAuthToken()}),s.commands.registerCommand(t.CANCEL_LOGIN,()=>{w.WindsurfAuthProvider.getInstance().forceCancellation()}),s.commands.registerCommand(t.LOGOUT,async()=>{const A=w.WindsurfAuthProvider.getInstance(),e=await A.getSessions();e.length>0&&await A.removeSession(e[0].id)})),"
+    ];
 
     // 新的命令注册
     private static readonly NEW_COMMAND_REGISTRATION = 'A.subscriptions.push(s.commands.registerCommand("windsurf.provideAuthTokenToAuthProviderWithShit",async A=>{try{return{session:await e.handleAuthTokenWithShit(A),error:void 0}}catch(A){return A instanceof a.WindsurfError?{error:A.errorMetadata}:{error:C.WindsurfExtensionMetadata.getInstance().errorCodes.GENERIC_ERROR}}})),';
@@ -51,7 +56,7 @@ export class WindsurfPatchService {
      */
     static async isPatchApplied(): Promise<boolean> {
         console.log('[WindsurfPatchService] 开始检查补丁是否已应用...');
-        
+
         try {
             const extensionPath = WindsurfPathService.getExtensionPath();
             if (!extensionPath) {
@@ -62,18 +67,18 @@ export class WindsurfPatchService {
             console.log('[WindsurfPatchService] 读取扩展文件内容...');
             const fileContent = fs.readFileSync(extensionPath, 'utf-8');
             console.log(`[WindsurfPatchService] 文件内容长度: ${fileContent.length} 字符`);
-            
+
             console.log(`[WindsurfPatchService] 检查关键字1: "${this.PATCH_KEYWORD_1}"`);
             const hasKeyword1 = fileContent.includes(this.PATCH_KEYWORD_1);
             console.log(`[WindsurfPatchService] 关键字1 ${hasKeyword1 ? '已找到' : '未找到'}`);
-            
+
             console.log(`[WindsurfPatchService] 检查关键字2: "${this.PATCH_KEYWORD_2}"`);
             const hasKeyword2 = fileContent.includes(this.PATCH_KEYWORD_2);
             console.log(`[WindsurfPatchService] 关键字2 ${hasKeyword2 ? '已找到' : '未找到'}`);
 
             const isApplied = hasKeyword1 && hasKeyword2;
             console.log(`[WindsurfPatchService] 补丁${isApplied ? '已应用' : '未应用'}`);
-            
+
             return isApplied;
         } catch (error) {
             console.error('[WindsurfPatchService] 检查补丁状态失败:', error);
@@ -87,10 +92,10 @@ export class WindsurfPatchService {
      */
     static checkWritePermission(): PermissionCheckResult {
         console.log('[WindsurfPatchService] 开始检查写入权限...');
-        
+
         try {
             const extensionPath = WindsurfPathService.getExtensionPath();
-            
+
             if (!extensionPath) {
                 console.error('[WindsurfPatchService] Windsurf 安装未找到');
                 return {
@@ -137,7 +142,7 @@ export class WindsurfPatchService {
      */
     static async applyPatch(): Promise<PatchResult> {
         console.log('[WindsurfPatchService] 开始应用补丁...');
-        
+
         try {
             const extensionPath = WindsurfPathService.getExtensionPath();
             if (!extensionPath) {
@@ -166,10 +171,10 @@ export class WindsurfPatchService {
 
             // 1. 添加新的 handleAuthTokenWithShit 函数
             console.log('[WindsurfPatchService] 查找 handleAuthToken 函数...');
-            
+
             let matchedPattern: string | null = null;
             let handleAuthTokenIndex = -1;
-            
+
             for (const pattern of this.ORIGINAL_HANDLE_AUTH_TOKEN_PATTERNS) {
                 handleAuthTokenIndex = fileContent.indexOf(pattern);
                 if (handleAuthTokenIndex !== -1) {
@@ -178,7 +183,7 @@ export class WindsurfPatchService {
                     break;
                 }
             }
-            
+
             if (handleAuthTokenIndex === -1 || !matchedPattern) {
                 console.error('[WindsurfPatchService] 未找到 handleAuthToken 函数');
                 return {
@@ -186,7 +191,7 @@ export class WindsurfPatchService {
                     error: "Could not find handleAuthToken function. Windsurf version may be incompatible.\n\nThe expected function signature was not found in extension.js.\n\nPlease report this issue with your Windsurf version."
                 };
             }
-            
+
             const newFunction = this.NEW_HANDLE_AUTH_TOKEN_WITH_SHIT_MAP[matchedPattern];
             if (!newFunction) {
                 console.error('[WindsurfPatchService] 未找到对应的补丁函数');
@@ -198,15 +203,27 @@ export class WindsurfPatchService {
 
             const insertPosition1 = handleAuthTokenIndex + matchedPattern.length;
             console.log('[WindsurfPatchService] 插入新的 handleAuthTokenWithShit 函数...');
-            fileContent = fileContent.substring(0, insertPosition1) + 
-                         newFunction + 
-                         fileContent.substring(insertPosition1);
+            fileContent = fileContent.substring(0, insertPosition1) +
+                newFunction +
+                fileContent.substring(insertPosition1);
             console.log(`[WindsurfPatchService] 插入函数后文件大小: ${fileContent.length} 字符`);
 
             // 2. 添加新的命令注册
             console.log('[WindsurfPatchService] 查找命令注册...');
-            const commandRegistrationIndex = fileContent.indexOf(this.ORIGINAL_COMMAND_REGISTRATION);
-            if (commandRegistrationIndex === -1) {
+
+            let commandRegistrationIndex = -1;
+            let matchedCommandPattern: string | null = null;
+
+            for (const pattern of this.ORIGINAL_COMMAND_REGISTRATION_PATTERNS) {
+                commandRegistrationIndex = fileContent.indexOf(pattern);
+                if (commandRegistrationIndex !== -1) {
+                    matchedCommandPattern = pattern;
+                    console.log(`[WindsurfPatchService] 匹配到命令注册版本，位置: ${commandRegistrationIndex}`);
+                    break;
+                }
+            }
+
+            if (commandRegistrationIndex === -1 || !matchedCommandPattern) {
                 console.error('[WindsurfPatchService] 未找到命令注册');
                 return {
                     success: false,
@@ -215,11 +232,11 @@ export class WindsurfPatchService {
             }
             console.log(`[WindsurfPatchService] 找到命令注册，位置: ${commandRegistrationIndex}`);
 
-            const insertPosition2 = commandRegistrationIndex + this.ORIGINAL_COMMAND_REGISTRATION.length;
+            const insertPosition2 = commandRegistrationIndex + matchedCommandPattern.length;
             console.log('[WindsurfPatchService] 插入新的命令注册...');
-            fileContent = fileContent.substring(0, insertPosition2) + 
-                         this.NEW_COMMAND_REGISTRATION + 
-                         fileContent.substring(insertPosition2);
+            fileContent = fileContent.substring(0, insertPosition2) +
+                this.NEW_COMMAND_REGISTRATION +
+                fileContent.substring(insertPosition2);
             console.log(`[WindsurfPatchService] 插入命令后文件大小: ${fileContent.length} 字符`);
 
             // 写入修改后的文件
@@ -232,7 +249,7 @@ export class WindsurfPatchService {
             const verificationContent = fs.readFileSync(extensionPath, 'utf-8');
             const hasKeyword1 = verificationContent.includes(this.PATCH_KEYWORD_1);
             const hasKeyword2 = verificationContent.includes(this.PATCH_KEYWORD_2);
-            
+
             console.log(`[WindsurfPatchService] 验证关键字1: ${hasKeyword1 ? '存在' : '不存在'}`);
             console.log(`[WindsurfPatchService] 验证关键字2: ${hasKeyword2 ? '存在' : '不存在'}`);
 
@@ -264,7 +281,7 @@ export class WindsurfPatchService {
      */
     static async checkAndApplyPatch(): Promise<PatchCheckResult> {
         console.log('[WindsurfPatchService] 开始检查并应用补丁流程...');
-        
+
         try {
             // 1. 检查补丁是否已应用
             console.log('[WindsurfPatchService] 步骤1: 检查补丁是否已应用');
